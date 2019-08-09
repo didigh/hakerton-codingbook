@@ -1,0 +1,144 @@
+
+{% extends 'base.html' %}
+{% block content %} 
+{% load staticfiles %}
+
+<head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+        .collapsible {
+          opacity: 0.7;
+          background-color:white;
+          color: black;
+          cursor: pointer;
+          padding: 0;
+          border: none;
+          background:none;
+          width: 7%;
+          text-align: center;
+          outline: none;
+          font-size: 15px;
+        }
+        a {
+          font-family: 'BBTreeGL';
+        }
+        .active, .collapsible:hover {
+            opacity: 1;
+        }
+        
+        .content {
+          padding: 0 18px;
+          display: none;
+          overflow: hidden;
+          background-color: #f1f1f1;
+        }
+        .codes {
+          padding-left:15px;
+        }
+        p {
+          font-family: 'BBTreeGL';
+        }
+        </style>
+</head>
+<body>
+    <div class="card">
+        <div class="card-body">
+          {% if sharedetail.image %}<img src="{{sharedetail.image.url}}" width=600 height=400>{% endif %}<br>
+          <p class="title"><span>제목<span> : {{sharedetail.title}}<br></p>
+            <p class="body"><span>내용<span> : {{sharedetail.body|linebreaksbr}}<br></p>
+            <div class="codes"><span> 코드<span> : {{sharedetail.codes|linebreaksbr}}<br></div>
+            {{sharedetail.pub_date}}<br>
+            <p class="subject">과목명 : {{sharedetail.subject}}<br></p>
+          <p class="uni"></p>대학교 : {{sharedetail.university}}<br></p>
+          <p class="score">점수 : {{sharedetail.score}}<br></p>
+        
+
+
+
+              {% if user.is_authenticated %}
+              <!--좋아요 누를 수 있게 +  좋아요 개수-->
+              <a href="{% url 'share_like' sharedetail.id %}"><img src="{% static 'KakaoTalk_20190810_035249465.jpg' %}" height="40" width="40">
+                {{ sharedetail.like_count }} like</a>
+              {% else %}
+             <!--좋아요 개수만 -->  {{ sharedetail.like_count }} like 
+              {% endif %}
+      
+          {% if user.username == sharedetail.writer %}
+            <a href="{% url 'sharedelete' sharedetail.id %}">삭제</a>
+            <a href="{% url 'shareedit' sharedetail.id %}">수정</a>
+          {% endif %}
+<hr>
+<div class =comments>
+       <form id="importForm" action="{% url 'share_comment_create' sharedetail.id %}" method=POST>
+           {% csrf_token %}
+           <textarea type=text name=contents cols=80 rows=3 placeholder="댓글 최대 200자"></textarea>
+           <button type="submit" class="btn" id="importButton">댓글쓰기</button>
+        </form>
+        {% for comment in sharedetail.comments.all %}
+         <hr><li style="list-style-type: none;">
+            ↳( {{comment.com_writer}} ) {{comment.contents}}&emsp;              
+              <a class="delete" href="{% url 'share_comment_delete' sharedetail.id comment.id %}">X</a>
+         {% if comment %}&emsp;
+         <button type="button" class="collapsible">대댓글{{sharedetail.comment.counts}}▾</button>
+            <div class="content">
+                <form id="importForm" action="{% url 'share_replay_create' sharedetail.id comment.id %}" method=POST>
+                    {% csrf_token %}<br>
+                    <textarea  type="text" name=contents cols=80 rows=2></textarea><button id="importButton2" type="submit" class="btn">확인</button>
+                    <p>대댓글 목록</p>
+                    {% for re in comment.replies.all %}
+                    <li style="list-style-type: none;">
+                        &emsp;&emsp;↳( {{re.re_writer}} ): {{re.contents}}
+                        <a class="delete" href="{% url 'share_replay_delete' sharedetail.id comment.id re.id %}">삭제</a>
+                    </li><hr>
+                    {% endfor %}    
+                </form>            
+            </div>
+         </li>
+      {% endif %}
+      
+
+  </center>
+      {% endfor %}
+      
+   </div>
+   <script>/* 댓글창 내리는 코드 */
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+        
+        for (i = 0; i < coll.length; i++) {
+          coll[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.display === "block") {
+              content.style.display = "none";
+            } else {
+              content.style.display = "block";
+            }
+          });
+        }
+        /* 엔터누르면 댓글 작성되는 코드 */
+        $(document).ready(function () {
+            $('body').keypress(function (e) {
+                if (e.keyCode == 13) {
+                    e.preventDefault();
+                    $("#importButton").click();
+                }
+            });
+        });
+        $(document).ready(function () {
+            $('button').keypress(function (f) {
+                if (f.keyCode == 13) {
+                    f.preventDefault();
+                    $("#importButton2").click();
+                }
+            });
+        });
+</script>
+       
+<hr>
+<a href="{% url 'share'%}">뒤로가기</a>
+<br><br>
+</div>
+
+</body>
+{% endblock %}

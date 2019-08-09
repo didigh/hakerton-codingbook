@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block content %}
+<head>
+    <style>
+        @font-face { font-family: 'designhouseOTFLight00'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_three@1.0/designhouseOTFLight00.woff') format('woff'); font-weight: normal; font-style: normal; }
+        @font-face { font-family: 'Openas'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_nine_@1.1/Openas.woff') format('woff'); font-weight: normal; font-style: normal; }
+
+        .sum {
+            color:#303F9F;
+            
+        }
+        .sum:hover {
+            color:#303F9F;
+            opacity:0.5;s
+            text-decoration:none;
+        }
+        input {
+            display: inline;
+        }
+        .back {
+            color:black;
+            font-size:20px;
+            font-family: 'Openas';
+        }
+        .back:hover {
+            color:black;
+            opacity:0.5;
+            text-decoration:none;
+            font-family: 'Openas';
+        }
+    </style>
+</head>
+<nav class="navbar navbar-expand-lg navbar-light bg-light rounded">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample10" aria-controls="navbarsExample10" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-md-center" id="navbarsExample10">
+    
+      <form name="q" method="POST" action="{% url 'share' %}">
+        {% csrf_token %}
+        <select name="filter" required>
+            <option value="fil_title" selected style="font-weight:bold;">제목</option>
+            <option value="fil_body">내용</option>
+            <option value="fil_university">학교</option>
+            <option value="fil_subject">과목</option>        
+        </select>
+        
+        <input class="form-control" type="text" name="search" value="{{ search }}" placeholder="Search" aria-label="Search">
+        <input type ="submit" value="검색">
+      </form>
+    </div>
+</nav> 
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">이미지</th>
+            <th scope="col">코드</th>
+            <th scope="col">제목</th>
+            <th scope="col">내용</th>
+            <th scope="col">과목</th>
+            <th scope="col">작성날짜</th>
+            <th scope="col">작성자</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for s in posts %}
+        <tr>
+            <th scope="row">{{s.id}}</th>
+            <td>{% if s.image %}<img width=30 height=30 style="margin-left:8px;" src={{s.image.url}}>{% endif %}</td>
+            <td style="color:#78909C;">{{s.codesum}}...</td>
+            <td style="font-weight:bold;">{{s.title}}</td>
+            <td><a href="{% url 'sharedetail' s.id %}" class="sum">{{s.sum}}...</a></td>
+            <td>{{s.subject}}</td>
+            <td style="font-family: 'designhouseOTFLight00';color:#78909C;">{{s.pub_date}}</td>
+            <td style="font-family: 'designhouseOTFLight00';">{{s.writer}}</td>
+        </tr>
+        {% endfor %}     
+    </tbody>
+</table>
+
+<button type="button" class="btn btn-light" style="clear:both; float: right;">
+<a href="{% url 'sharenew' %}" class="back">내 코드 공유하기</a>
+</button>
+<button type="button" class="btn btn-light" style="float:left;">
+<a href="{% url 'index' %}" class="back" >뒤로</a>
+</button>
+
+<center>
+    <div style="position:relative; bottom:0; clear:both;">
+            <button type="button" class="btn btn-light">
+            <a href="?page=1">First</a>
+            </button>
+            {% if posts.has_previous %}
+            <button type="button" class="btn btn-light">
+            <a href="?page={{posts.previous_page_number}}">Previous</a>
+            </button>
+            {% endif %}
+        
+            <span>{{posts.number}}</span>
+            <span>of</span>
+            <span>{{posts.paginator.num_pages}}</span>
+        
+            {% if posts.has_next %}
+            <button type="button" class="btn btn-light">
+            <a href="?page={{posts.next_page_number}}">Next</a>
+            </button>
+            {% endif %}
+            <button type="button" class="btn btn-light">
+            <a href="?page={{posts.paginator.num_pages}}">Last</a>
+            </button>
+        </div>
+    </center>
+{% endblock %}

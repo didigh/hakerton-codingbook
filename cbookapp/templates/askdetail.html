@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% block content %} 
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+          @import url(//fonts.googleapis.com/earlyaccess/nanumgothiccoding.css); .nanumgothiccoding * { font-family: 'Nanum Gothic Coding', monospace; }
+          @font-face { font-family: 'headline'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_eight@1.0/headline.woff') format('woff'); font-weight: normal; font-style: normal; }
+          @font-face { font-family: 'netmarbleL'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_four@1.1/netmarbleL.woff') format('woff'); font-weight: normal; font-style: normal; }
+        
+        .collapsible {
+          opacity: 0.7;
+          background-color:white;
+          color: black  ;
+          cursor: pointer;
+          padding: 0;
+          border: none;
+          background:none;
+          width: 7%;
+          text-align: center;
+          outline: none;
+          font-size: 15px;
+        }
+        
+        .active, .collapsible:hover {
+            opacity: 1;
+        }
+        
+        .content {
+          padding: 0 18px;
+          display: none;
+          overflow: hidden;
+          background-color: #f1f1f1;
+        }
+        .codes {
+          display: flex;
+        }
+        .title {
+          
+          font-size:50px;
+          font-family: 'headline';
+        }
+        .image {
+          display: block;
+          margin-left: auto;
+          margin-right: auto;
+          width: 90%;
+        }
+        .codes {
+          font-family: 'Nanum Gothic Coding';
+          background-color:#D6DBDF ;
+          color:  black;
+        }
+        .card-body {
+          margin-left:70px;
+          margin-right:70px;
+          font-family: 'netmarbleL';
+        }
+        .writer {
+          float: right;
+          margin-right:30px;
+          color:#808B96;
+          font-family: 'netmarbleL';
+        }
+        .delete {
+          color:#2874A6;
+        }
+        .body, .codes, .subject {
+          font-size:25px;
+        }
+        </style>
+</head>
+<div class="card">
+  <div class="card-body"><br>
+      <p class="title"><span>제목<span> : {{askdetail.title}}</p><br>
+
+{% if askdetail.image %}<img class="image" src="{{askdetail.image.url}}">{% endif %}<br>
+<p class="body"><span>내용<span> : {{askdetail.body|linebreaksbr}}<br></p>
+<div class="codes"><span> 코드<span> : {{askdetail.codes|linebreaksbr}}<br></div>
+<p class="subject">과목명 : {{askdetail.subject}}<br></p>
+<p class="writer">{{askdetail.pub_date}} &emsp;&emsp;  작성자 : {{askdetail.writer}}<br></p>
+
+{% if user.username == askdetail.writer %}
+<a href="{% url 'askdelete' askdetail.id %}">삭제</a>
+<a href="{% url 'askedit' askdetail.id %}">수정</a>
+{% endif %} 
+<hr>
+<div class =comments>
+       <form id="importForm" action="{% url 'ask_comment_create' askdetail.id %}" method=POST>
+           {% csrf_token %}
+           <textarea type=text name=contents cols=80 rows=3 placeholder="댓글 최대 200자"></textarea>
+           <button type="submit" class="btn" id="importButton">댓글쓰기</button>
+        </form>
+        {% for comment in askdetail.comments.all %}
+         <hr><li style="list-style-type: none;">
+          
+            ↳( {{comment.com_writer}} ) {{comment.contents}}&emsp;<a class="delete" href="{% url 'ask_comment_delete' askdetail.id comment.id %}">X</a>
+
+          {% if comment %}&emsp;
+         <button type="button" class="collapsible">대댓글▾</button>
+            <div class="content">
+                <form id="importForm" action="{% url 'ask_replay_create' askdetail.id comment.id %}" method=POST>
+                    {% csrf_token %}<br>
+                    <textarea  type="text" name=contents cols=80 rows=2></textarea><button id="importButton2" type="submit" class="btn">확인</button>
+                    <p>대댓글 목록</p>
+                    
+                    {% for re in comment.replies.all %}
+                    <li style="list-style-type: none;">
+                        &emsp;&emsp;↳( {{re.re_writer}} ){{re.contents}}<a class="delete" href="{% url 'ask_replay_delete' askdetail.id comment.id re.id %}">삭제</a>
+                    </li><hr>
+                    
+                    {% endfor %}    
+                </form>            
+            </div>
+         </li>
+      {% endif %}
+      {% endfor %}
+   </div>
+   <script>/* 댓글창 내리는 코드 */
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+        
+        for (i = 0; i < coll.length; i++) {
+          coll[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.display === "block") {
+              content.style.display = "none";
+            } else {
+              content.style.display = "block";
+            }
+          });
+        }
+        /* 엔터누르면 댓글 작성되는 코드 */
+        $(document).ready(function () {
+            $('body').keypress(function (e) {
+                if (e.keyCode == 13) {
+                    e.preventDefault();
+                    $("#importButton").click();
+                }
+            });
+        });
+       
+        </script>
+       
+<hr><br><br>
+<a href="{% url 'ask'%}">뒤로가기</a>
+
+</div>
+</div>
+{% endblock %}

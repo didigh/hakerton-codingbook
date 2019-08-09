@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+     
+{% if user.is_anonymous %}
+    <script>
+        alert('글을 쓰시려면 로그인을 해야 됩니다.')
+        document.location.href = '/account/signin';
+    </script>
+{% endif %}
+<div class="alert alert-primary" role="alert">
+<form method="POST" enctype="multipart/form-data">
+    <center>
+    {% csrf_token%}
+        <table>
+            {{ask_form.as_table}}
+        </table> 
+    <br>
+    <input style="float:right; margin-right:30px;" class="btn btn-dark" type="submit" value="제출">
+    <br>
+    </center>
+</form>
+</div>
+
+{% endblock %}

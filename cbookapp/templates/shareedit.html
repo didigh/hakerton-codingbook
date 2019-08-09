@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %} 
+
+<form action="{% url 'shareedit' shareedit.id %}" method="POST">
+    {% csrf_token %}
+    {% if shareedit.image %}<img src="{{shareedit.image.url}}" width=200 height=200>{% endif %}<br>
+    제목 : <input type="text" value={{shareedit.title}} name="title"></input><br>
+    내용 : <textarea cols="20" rows="5" name="body">{{shareedit.body}}</textarea><br>
+    코드 : <textarea calss="codes" cols="20" rows="5" name="codes">{{shareedit.codes}}</textarea><br>
+    과목 : <input type="text" value={{shareedit.subject}} name="subject"></input><br>
+    대학교 : <input type="text" value={{shareedit.university}} name="university"></input><br>
+    점수 : <input type="text" value={{shareedit.score}} name="score"></input><br>
+    작성자 : <input type="text" value={{shareedit.writer}} name="writer"></input><br>   
+    <button type="submit">확인</button>
+</form>
+{% endblock %}

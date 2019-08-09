@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+<form action="{% url 'askedit' askedit.id %}" method="POST">
+    {% csrf_token %}
+    {% if askedit.image %}<img src="{{askedit.image.url}}" width=200 height=200>{% endif %}<br>
+    제목 : <input type="text" value={{askedit.title}} name="title"></input><br>
+    내용 : <textarea cols="20" rows="5" name="body">{{askedit.body}}</textarea><br>
+    코드 : <textarea calss="codes" cols="20" rows="5" name="codes">{{askedit.codes}}</textarea><br>
+    과목 : <input type="text" value={{askedit.subject}} name="subject"></input><br>
+    작성자 : <input type="text" value={{askedit.writer}} name="writer"></input><br>   
+    <button type="submit">확인</button>
+</form>
+{% endblock %}
